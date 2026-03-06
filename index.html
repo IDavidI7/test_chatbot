@@ -1,63 +1,233 @@
 <!DOCTYPE html>
 <html>
+
 <head>
+<meta charset="UTF-8">
 <title>Chat IA</title>
+
 <style>
-body{
-font-family: Arial;
+
+/* ===== CORES DO SITE (MUDE AQUI) ===== */
+
+:root{
+
+--cor-fundo: #f4f6fb;        /* cor do fundo da página */
+--cor-chat: #ffffff;         /* cor da caixa do chat */
+--cor-botao: #4a6cff;        /* cor do botão enviar */
+--cor-botao-hover: #3a57d6;  /* cor do botão ao passar mouse */
+--cor-user: #dfe7ff;         /* cor da mensagem do usuário */
+--cor-ia: #f1f1f1;           /* cor da mensagem da IA */
+
 }
+
+/* ===== ESTRUTURA DA PÁGINA ===== */
+
+body{
+
+margin:0;
+font-family: Arial, Helvetica, sans-serif;
+background: var(--cor-fundo);
+
+display:flex;
+justify-content:center;
+align-items:center;
+
+height:100vh;
+
+}
+
+/* ===== CAIXA DO CHAT ===== */
+
+.container{
+
+width:420px;
+background:var(--cor-chat);
+
+border-radius:12px;
+box-shadow:0 10px 25px rgba(0,0,0,0.1);
+
+padding:20px;
+
+display:flex;
+flex-direction:column;
+
+}
+
+/* ===== TÍTULO ===== */
+
+h2{
+
+text-align:center;
+margin-top:0;
+
+}
+
+/* ===== ÁREA DAS MENSAGENS ===== */
 
 #chat{
-width:400px;
-height:400px;
-border:1px solid #ccc;
-overflow:auto;
+
+height:350px;
+overflow-y:auto;
+
+border:1px solid #ddd;
+border-radius:8px;
+
 padding:10px;
+margin-bottom:10px;
+
+display:flex;
+flex-direction:column;
+gap:8px;
+
 }
 
-#input{
-width:300px;
+/* ===== MENSAGEM USUÁRIO ===== */
+
+.user{
+
+background:var(--cor-user);
+padding:8px;
+border-radius:6px;
+align-self:flex-end;
+
 }
+
+/* ===== MENSAGEM IA ===== */
+
+.bot{
+
+background:var(--cor-ia);
+padding:8px;
+border-radius:6px;
+align-self:flex-start;
+
+}
+
+/* ===== ÁREA DE DIGITAR ===== */
+
+.input-area{
+
+display:flex;
+gap:8px;
+
+}
+
+/* ===== INPUT ===== */
+
+#input{
+
+flex:1;
+
+padding:10px;
+border-radius:6px;
+border:1px solid #ccc;
+
+font-size:14px;
+
+}
+
+/* ===== BOTÃO ===== */
+
+button{
+
+background:var(--cor-botao);
+color:white;
+
+border:none;
+padding:10px 15px;
+
+border-radius:6px;
+
+cursor:pointer;
+
+font-weight:bold;
+
+}
+
+button:hover{
+
+background:var(--cor-botao-hover);
+
+}
+
 </style>
 </head>
 
+
 <body>
 
-<h2>Chat com IA</h2>
+<div class="container">
+
+<h2>Chat IA</h2>
 
 <div id="chat"></div>
 
+<div class="input-area">
+
 <input id="input" placeholder="Digite sua pergunta">
+
 <button onclick="sendMessage()">Enviar</button>
 
+</div>
+
+</div>
+
 <script>
+
+const conversationId = crypto.randomUUID();
 
 async function sendMessage(){
 
 let input = document.getElementById("input")
-let message = input.value
+let message = input.value.trim()
 
-document.getElementById("chat").innerHTML +=
-"<p><b>Você:</b> "+message+"</p>"
+if(message === "") return
+
+let chat = document.getElementById("chat")
+
+chat.innerHTML += `<div class="user">${message}</div>`
+
+input.value=""
+
+chat.scrollTop = chat.scrollHeight
 
 let response = await fetch("https://dvdewd.app.n8n.cloud/webhook/chat-ai",{
+
 method:"POST",
+
 headers:{
 "Content-Type":"application/json"
 },
+
 body:JSON.stringify({
-message:message
+message:message,
+conversationId: conversationId
 })
+
 })
 
 let data = await response.json()
 
-document.getElementById("chat").innerHTML +=
-"<p><b>IA:</b> "+data.reply+"</p>"
+chat.innerHTML += `<div class="bot">${data.reply}</div>`
 
-input.value=""
+chat.scrollTop = chat.scrollHeight
 
 }
+
+
+/* ===== ENVIAR COM ENTER ===== */
+
+document.getElementById("input")
+.addEventListener("keypress", function(event){
+
+if(event.key === "Enter"){
+
+event.preventDefault()
+sendMessage()
+
+}
+
+})
 
 </script>
 
